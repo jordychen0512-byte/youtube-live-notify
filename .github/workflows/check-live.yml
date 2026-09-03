@@ -1,0 +1,52 @@
+name: Check YouTube Live
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "*/5 * * * *"
+
+concurrency:
+  group: youtube-live-check
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  check-live:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+
+    env:
+      YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+      DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+      DISCORD_WEBHOOK_USERNAME: ${{ vars.DISCORD_WEBHOOK_USERNAME }}
+      DISCORD_WEBHOOK_AVATAR_URL: ${{ vars.DISCORD_WEBHOOK_AVATAR_URL }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Check YouTube live status
+        run: python monitor.py
+
+      - name: Save notification state
+        if: ${{ always() }}
+        run: |
+          if [ -f state.json ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add state.json
+
+            if ! git diff --cached --quiet; then
+              git commit -m "Update YouTube live state"
+              git push
+            else
+              echo "Live state did not change."
+            fi
+          fi
