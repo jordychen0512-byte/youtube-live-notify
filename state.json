@@ -1,3 +1,9 @@
 {
-  "channels": {}
+  "channels": {
+    "UCR7sl-Im8bJZAABhvY7KGhg": {
+      "notified_video_ids": [
+        "LnyUlyK7iEw"
+      ]
+    }
+  }
 }
