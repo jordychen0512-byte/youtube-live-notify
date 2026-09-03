@@ -64,7 +64,11 @@ class MonitorTests(unittest.TestCase):
             },
             "liveStreamingDetails": {"actualStartTime": "2026-09-03T01:00:00Z"},
         }
-        channel = {"name": "BIZzzz", "handle": "@bbbbiz"}
+        channel = {
+            "name": "BIZzzz",
+            "notification_name": "台港澳威威｜Biz",
+            "handle": "@bbbbiz",
+        }
 
         send_discord_notification(
             client,
@@ -80,6 +84,15 @@ class MonitorTests(unittest.TestCase):
             client.payload["avatar_url"],
             "https://example.com/avatar.png",
         )
+        self.assertEqual(
+            client.payload["content"],
+            "@everyone\n"
+            "**台港澳威威｜Biz 開始直播啦！**\n\n"
+            "**測試直播**\n"
+            "▶️ https://www.youtube.com/watch?v=abcdefghijk",
+        )
+        self.assertNotIn("embeds", client.payload)
+        self.assertEqual(client.payload["allowed_mentions"], {"parse": ["everyone"]})
 
     def test_video_details_are_split_into_api_sized_batches(self):
         client = FakeYouTubeClient()
@@ -93,3 +106,4 @@ class MonitorTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
