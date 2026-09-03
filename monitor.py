@@ -1,3 +1,4 @@
+import argparse
 import json
 import os
 import sys
@@ -186,6 +187,30 @@ def send_discord_notification(
     client.post_json(webhook_url, payload)
 
 
+def send_test_notification(
+    client: HttpClient,
+    webhook_url: str,
+    webhook_username: str = "YouTube 直播通知",
+    webhook_avatar_url: str = "",
+) -> None:
+    payload: dict[str, Any] = {
+        "username": webhook_username,
+        "content": "✅ **YouTube 直播通知測試成功**",
+        "embeds": [
+            {
+                "title": "測試通知",
+                "description": "Webhook、顯示名稱、頭像與嵌入訊息皆已連線。",
+                "color": 0xFF0000,
+                "footer": {"text": "youtube-live-notify"},
+            }
+        ],
+        "allowed_mentions": {"parse": []},
+    }
+    if webhook_avatar_url:
+        payload["avatar_url"] = webhook_avatar_url
+    client.post_json(webhook_url, payload)
+
+
 def iso_to_unix(value: str) -> int:
     from datetime import datetime
 
@@ -193,6 +218,14 @@ def iso_to_unix(value: str) -> int:
 
 
 def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--test-notification",
+        action="store_true",
+        help="Send a Discord test message without mentioning anyone.",
+    )
+    args = parser.parse_args()
+
     api_key = os.environ.get("YOUTUBE_API_KEY", "").strip()
     webhook_url = os.environ.get("DISCORD_WEBHOOK_URL", "").strip()
     webhook_username = (
@@ -200,6 +233,19 @@ def main() -> int:
         or "YouTube 直播通知"
     )
     webhook_avatar_url = os.environ.get("DISCORD_WEBHOOK_AVATAR_URL", "").strip()
+    if args.test_notification:
+        if not webhook_url:
+            print("缺少環境變數：DISCORD_WEBHOOK_URL", file=sys.stderr)
+            return 2
+        send_test_notification(
+            HttpClient(),
+            webhook_url,
+            webhook_username,
+            webhook_avatar_url,
+        )
+        print("Discord 測試通知已送出。")
+        return 0
+
     if not api_key or not webhook_url:
         missing = [
             name
@@ -292,3 +338,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
