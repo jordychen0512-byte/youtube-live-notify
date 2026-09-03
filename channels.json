@@ -1,22 +1,27 @@
 [
   {
     "name": "BIZzzz",
+    "notification_name": "台港澳威威｜Biz",
     "handle": "@bbbbiz",
     "channel_id": "UCR7sl-Im8bJZAABhvY7KGhg"
   },
   {
     "name": "emfa",
+    "notification_name": "韓國威威｜emfa",
     "handle": "@emfa1213",
     "channel_id": "UCxgLmjOYux1dfiuC_2czDcw"
   },
   {
     "name": "Solchan",
+    "notification_name": "韓國威威｜Solchan",
     "handle": "@chan_19241",
     "channel_id": "UCeBpSppjlHHpDpfU6QeVttg"
   },
   {
     "name": "有為想吃餅",
+    "notification_name": "台港澳威威｜有為想吃餅",
     "handle": "@iuwaximcbim",
     "channel_id": "UCNPjY7C3jbJv7wLHhHBe84w"
   }
 ]
+
