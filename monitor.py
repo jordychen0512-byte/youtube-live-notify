@@ -114,15 +114,19 @@ def fetch_video_details(
     if not video_ids:
         return {}
 
-    data = youtube_get(
-        client,
-        "videos",
-        api_key,
-        part="snippet,liveStreamingDetails,status",
-        id=",".join(dict.fromkeys(video_ids)),
-        maxResults=50,
-    )
-    return {item["id"]: item for item in data.get("items", [])}
+    unique_ids = list(dict.fromkeys(video_ids))
+    videos: dict[str, dict[str, Any]] = {}
+    for offset in range(0, len(unique_ids), 50):
+        data = youtube_get(
+            client,
+            "videos",
+            api_key,
+            part="snippet,liveStreamingDetails,status",
+            id=",".join(unique_ids[offset : offset + 50]),
+            maxResults=50,
+        )
+        videos.update({item["id"]: item for item in data.get("items", [])})
+    return videos
 
 
 def is_live(video: dict[str, Any]) -> bool:
