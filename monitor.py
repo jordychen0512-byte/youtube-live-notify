@@ -152,34 +152,17 @@ def send_discord_notification(
     snippet = video.get("snippet", {})
     video_id = video["id"]
     video_url = f"https://www.youtube.com/watch?v={video_id}"
-    thumbnails = snippet.get("thumbnails", {})
-    thumbnail = (
-        thumbnails.get("maxres")
-        or thumbnails.get("standard")
-        or thumbnails.get("high")
-        or {}
-    ).get("url")
-
-    embed: dict[str, Any] = {
-        "title": snippet.get("title") or f"{channel['name']} 正在直播",
-        "url": video_url,
-        "description": f"[{channel['name']} 的 YouTube 頻道](https://www.youtube.com/{channel['handle']})",
-        "color": 0xFF0000,
-        "fields": [
-            {
-                "name": "開始時間",
-                "value": f"<t:{iso_to_unix(video['liveStreamingDetails']['actualStartTime'])}:R>",
-                "inline": True,
-            }
-        ],
-    }
-    if thumbnail:
-        embed["image"] = {"url": thumbnail}
+    video_title = snippet.get("title") or f"{channel['name']} 正在直播"
+    notification_name = channel.get("notification_name") or channel["name"]
 
     payload = {
         "username": webhook_username,
-        "content": f"@everyone\n🔴 **{channel['name']} 開始直播了！**\n{video_url}",
-        "embeds": [embed],
+        "content": (
+            f"@everyone\n"
+            f"**{notification_name} 開始直播啦！**\n\n"
+            f"**{video_title}**\n"
+            f"▶️ {video_url}"
+        ),
         "allowed_mentions": {"parse": ["everyone"]},
     }
     if webhook_avatar_url:
