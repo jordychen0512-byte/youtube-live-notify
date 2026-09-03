@@ -2,6 +2,12 @@ name: Check YouTube Live
 
 on:
   workflow_dispatch:
+    inputs:
+      test_notification:
+        description: "只發送 Discord 測試通知（不標註任何人）"
+        required: false
+        type: boolean
+        default: false
   schedule:
     - cron: "*/5 * * * *"
 
@@ -33,10 +39,12 @@ jobs:
           python-version: "3.12"
 
       - name: Check YouTube live status
-        run: python monitor.py
+        run: >-
+          python monitor.py
+          ${{ inputs.test_notification && '--test-notification' || '' }}
 
       - name: Save notification state
-        if: ${{ always() }}
+        if: ${{ always() && !inputs.test_notification }}
         run: |
           if [ -f state.json ]; then
             git config user.name "github-actions[bot]"
@@ -50,3 +58,4 @@ jobs:
               echo "Live state did not change."
             fi
           fi
+
