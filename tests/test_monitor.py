@@ -1,6 +1,11 @@
 import unittest
 
-from monitor import is_live, send_discord_notification, uploads_playlist_id
+from monitor import (
+    fetch_video_details,
+    is_live,
+    send_discord_notification,
+    uploads_playlist_id,
+)
 
 
 class FakeClient:
@@ -11,6 +16,16 @@ class FakeClient:
     def post_json(self, url, payload):
         self.url = url
         self.payload = payload
+
+
+class FakeYouTubeClient:
+    def __init__(self):
+        self.batch_sizes = []
+
+    def get_json(self, _url, params):
+        ids = params["id"].split(",")
+        self.batch_sizes.append(len(ids))
+        return {"items": [{"id": video_id} for video_id in ids]}
 
 
 class MonitorTests(unittest.TestCase):
@@ -65,6 +80,15 @@ class MonitorTests(unittest.TestCase):
             client.payload["avatar_url"],
             "https://example.com/avatar.png",
         )
+
+    def test_video_details_are_split_into_api_sized_batches(self):
+        client = FakeYouTubeClient()
+        video_ids = [f"video-{number}" for number in range(60)]
+
+        videos = fetch_video_details(client, video_ids, "test-key")
+
+        self.assertEqual(client.batch_sizes, [50, 10])
+        self.assertEqual(len(videos), 60)
 
 
 if __name__ == "__main__":
