@@ -12,7 +12,7 @@ test("both workflows are dispatched with the main branch", async () => {
   });
   assert.equal(calls.length, 2);
   assert.ok(calls.some(url => url.includes("/youtube-live-notify/")));
-  assert.ok(calls.some(url => url.includes("/douyin-live-notify/")));
+  assert.ok(calls.some(url => url.includes("/vv-live-notify/")));
 });
 
 test("one project's authorization failure does not block the other", async () => {
